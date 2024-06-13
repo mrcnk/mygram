@@ -1,15 +1,11 @@
 import { fetchRequestHandler, tsr } from "@ts-rest/serverless/fetch";
-import { contract } from "./contract";
 import type { RequestHandler } from "./$types";
-
-const router = tsr.router(contract, {
-  signIn: async ({ body }) => {
-    return {
-      status: 200,
-      body: { success: true },
-    };
-  },
-});
+import { db } from "$lib/server/db";
+import { eq } from "drizzle-orm";
+import { alphabet, generateRandomString } from "oslo/crypto";
+import { lucia } from "$lib/server/auth";
+import { contract } from "$lib/contract";
+import { router } from "$lib/router";
 
 // Actually initiate the collective endpoints
 export const fallback: RequestHandler = ({ request }) =>

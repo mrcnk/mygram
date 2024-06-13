@@ -1,10 +1,10 @@
 import { Lucia } from "lucia";
 import { dev } from "$app/environment";
-import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
+import { DrizzleSQLiteAdapter } from "@lucia-auth/adapter-drizzle";
 import { db } from "./db";
-import { sessionTable, userTable } from "../../schema";
+import { sessionTable, userTable } from "$lib/schema";
 
-const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+const adapter = new DrizzleSQLiteAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
@@ -12,10 +12,18 @@ export const lucia = new Lucia(adapter, {
       secure: !dev,
     },
   },
+  getUserAttributes: (attributes) => ({
+    emailVerified: attributes.email_verified,
+    email: attributes.email,
+  }),
 });
 
 declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
+    DatabaseUserAttributes: {
+      email: string;
+      email_verified: boolean;
+    };
   }
 }

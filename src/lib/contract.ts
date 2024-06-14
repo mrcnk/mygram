@@ -1,5 +1,6 @@
 import { initClient, initContract } from "@ts-rest/core";
 import { z } from "zod";
+import { UserSchema } from "./schema";
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -34,5 +35,13 @@ export const contract = c.router({
       401: Result,
     },
     body: VerifyCodeSchema,
+  },
+  me: {
+    method: "GET",
+    path: "/api/me",
+    responses: {
+      200: UserSchema,
+      401: Result,
+    },
   },
 });

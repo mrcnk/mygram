@@ -1,4 +1,5 @@
-import { integer, sqliteTable, text, numeric } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createInsertSchema } from "drizzle-zod";
 import { nanoid } from "nanoid";
 import { TimeSpan, createDate } from "oslo";
 import { generateRandomString, alphabet } from "oslo/crypto";
@@ -6,7 +7,7 @@ import { generateRandomString, alphabet } from "oslo/crypto";
 export const userTable = sqliteTable("user", {
   id: text("id").primaryKey().$defaultFn(nanoid),
   email: text("email").unique(),
-  emailVerified: numeric("email_verified").default("false"),
+  emailVerified: integer("email_verified", { mode: "boolean" }).default(false),
 });
 
 export const sessionTable = sqliteTable("session", {
@@ -34,3 +35,5 @@ export const schema = {
   session: sessionTable,
   emailVerification: emailVerificationTable,
 };
+
+export const UserSchema = createInsertSchema(userTable);

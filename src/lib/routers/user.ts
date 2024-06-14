@@ -98,13 +98,34 @@ export const userRouter = tsr.router(contract, {
     await lucia.invalidateUserSessions(user.id);
     await db
       .update(userTable)
-      .set({ emailVerified: "true" })
+      .set({ emailVerified: true })
       .where(eq(userTable.id, user.id));
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
     return {
       status: 200,
       body: { success: true },
+    };
+  },
+  me: async (_, { request }) => {
+    const cookieHeader = request.headers.get("Cookie");
+    const sessionId = lucia.readSessionCookie(cookieHeader ?? "");
+    if (!sessionId) {
+      return {
+        status: 401,
+        body: { success: false },
+      };
+    }
+    const { user } = await lucia.validateSession(sessionId);
+    if (!user) {
+      return {
+        status: 401,
+        body: { success: false },
+      };
+    }
+    return {
+      status: 200,
+      body: user,
     };
   },
 });
